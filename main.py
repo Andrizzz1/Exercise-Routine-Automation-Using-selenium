@@ -53,15 +53,33 @@ Submit_button.click()
 
 
 
-find_tuesday =  wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,'[id*="day-group-tue"] .ClassCard_cardHeader__D9pf3')))
+# find_tuesday =  wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,'[id*="tue"] .ClassCard_cardHeader__D9pf3')))
+# for i in find_tuesday:
+#     locate_tue = i.text.split()
+#     if locate_tue[3] == '7:00' and locate_tue[4] == 'PM':
+#         sched_button = driver.find_element(By.XPATH,'//*[@id="book-button-spin-2026-02-03-1800"]')
+#         Date = driver.find_element(By.CSS_SELECTOR,'[id*="tue"] > h2').text
+#         class_name = card.find_element(By.CSS_SELECTOR, "h3[id^='class-name-']").text
+#         print(f"Booked: {class_name} on Tue, {Date.split(',')[1].replace(")","")}")
+#         sched_button.click()
 
-for i in find_tuesday:
-    locate_tue = i.text.split()
-    if locate_tue[3] == '7:00' and locate_tue[4] == 'PM':
-        sched_button = driver.find_element(By.XPATH,'//*[@id="book-button-spin-2026-02-03-1800"]')
-        print("Booked: Spin Class on Tue, Aug 12")
-        sched_button.click()
+
+weeks = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,'[id^="day-group-"] ')))
 
 
-        
+for tuesday in weeks:
+    target_date = tuesday.find_element(By.TAG_NAME,'h2').text.split(',')[1].replace(")","")
+    if "Tue" in tuesday.text:
+        class_cards = tuesday.find_elements(By.CLASS_NAME,"ClassCard_cardHeader__D9pf3")
+        for cards in class_cards:
+            class_times = cards.find_elements(By.CSS_SELECTOR,'[id^="class-time-"]') 
+            for time in class_times:
+                if "6:00 PM" in time.text:
+                    print(time.text)
 
+
+                    button = cards.find_element(By.CSS_SELECTOR,'button')
+                    button.click()
+
+                    class_name = cards.find_element(By.CSS_SELECTOR,'[id^="class-name-"]').text
+                    print(f"Booked:{class_name} on Tue, {target_date}")
