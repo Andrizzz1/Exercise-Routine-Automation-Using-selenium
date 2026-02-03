@@ -47,39 +47,62 @@ if User_already_exist.text:
     login_button.click()
 
 
-
 Submit_button =  wait.until(EC.presence_of_element_located((By.ID,'submit-button')))
 Submit_button.click()
 
 
-
-# find_tuesday =  wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,'[id*="tue"] .ClassCard_cardHeader__D9pf3')))
-# for i in find_tuesday:
-#     locate_tue = i.text.split()
-#     if locate_tue[3] == '7:00' and locate_tue[4] == 'PM':
-#         sched_button = driver.find_element(By.XPATH,'//*[@id="book-button-spin-2026-02-03-1800"]')
-#         Date = driver.find_element(By.CSS_SELECTOR,'[id*="tue"] > h2').text
-#         class_name = card.find_element(By.CSS_SELECTOR, "h3[id^='class-name-']").text
-#         print(f"Booked: {class_name} on Tue, {Date.split(',')[1].replace(")","")}")
-#         sched_button.click()
-
-
 weeks = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,'[id^="day-group-"] ')))
 
+total_booked = 0 
+total_waitlisted = 0
+Already_bookedORwaitlisted = 0
+
+
+Title_list = []
 
 for tuesday in weeks:
     target_date = tuesday.find_element(By.TAG_NAME,'h2').text.split(',')[1].replace(")","")
-    if "Tue" in tuesday.text:
+    if "Wed" in tuesday.text or "Thu" in tuesday.text:
         class_cards = tuesday.find_elements(By.CLASS_NAME,"ClassCard_cardHeader__D9pf3")
         for cards in class_cards:
             class_times = cards.find_elements(By.CSS_SELECTOR,'[id^="class-time-"]') 
             for time in class_times:
                 if "6:00 PM" in time.text:
-                    print(time.text)
-
-
                     button = cards.find_element(By.CSS_SELECTOR,'button')
-                    button.click()
-
                     class_name = cards.find_element(By.CSS_SELECTOR,'[id^="class-name-"]').text
-                    print(f"Booked:{class_name} on Tue, {target_date}")
+        
+                    
+                    if button.text == "Booked":
+                        print(f"Already Booked:{class_name} on Tue, {target_date}")
+                        Already_bookedORwaitlisted += 1
+                        
+                    elif button.text == "Waitlisted":
+                        print(f"Already on waitlist:{class_name} on Tue, {target_date}")
+                        Already_bookedORwaitlisted += 1
+                        
+                    elif button.text == "Book Class":
+                        button.click()
+                        print(f"Booked Class for:{class_name} on Tue, {target_date}")
+                        total_booked +=1
+                        Title_list.append(f"•[New Booking] {class_name} on {target_date}")
+                    else:
+                        button.click()
+                        print(f"Joined waitlist for:{class_name} on Tue, {target_date}")
+                        total_waitlisted +=1
+                        Title_list.append(f"•[New Waitlist] {class_name} on {target_date}")
+
+                    
+totals = total_booked + total_waitlisted + Already_bookedORwaitlisted
+print(f"""
+            --- BOOKING SUMMARY ---
+            Classes booked: {total_booked}
+            Waitlists joined: {total_waitlisted}
+            Already booked/waitlisted: {Already_bookedORwaitlisted}
+            Total Tuesday 6pm classes processed: {totals}""")
+
+print(f" --- DETAILED CLASS LIST ---")
+for i in Title_list:
+    print(i)
+
+
+                    
